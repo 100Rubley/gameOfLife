@@ -35,19 +35,56 @@ function setup() {
 }
 
 function render() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       if (grid[i][j] === 1) {
-        let x = i * cellSize;
-        let y = j * cellSize;
+        const x = i * cellSize;
+        const y = j * cellSize;
 
         ctx.fillStyle = "white";
         ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
       }
     }
   }
+
+  let next = make2DArray(cols, rows);
+
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const current = grid[i][j];
+      const neighbors = countNeighdors(grid, i, j);
+
+      if (current === 0 && neighbors === 3) {
+        next[i][j] = 1;
+      } else if (current === 1 && (neighbors < 2 || neighbors > 3)) {
+        next[i][j] = 0;
+      } else {
+        next[i][j] = current;
+      }
+    }
+  }
+
+  grid = next;
+}
+
+function countNeighdors(grid, x, y) {
+  let sum = 0
+
+  for (let i = -1; i <= 1; i++) {
+    for (let j = -1; j <= 1; j++) {
+      const col = (x + i + cols) % cols; // это перенос индекса, если дано 10 клеток, то для 9ой: (9 + 1 + 10) % 10 = 0
+      const row = (y + j + rows) % rows;
+
+      sum += grid[col][row]
+    }
+  }
+  sum -= grid[x][y] // вычитаем значение текущей клетки
+  return sum
 }
 
 setup()
-render()
-console.table(grid)
+
+setInterval(() => render(), 100)
+
