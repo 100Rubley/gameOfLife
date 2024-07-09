@@ -1,12 +1,76 @@
 // DOM objects start
-const canvas = document.querySelector('.canvas');
-// DOM objects end
+const canvas = document.getElementById('canvas');
+const randomBtn = document.getElementById('random-btn');
+const startBtn = document.getElementById('start-btn');
+const submitBtn = document.getElementById('submit-btn')
+const canvasHeightInput = document.getElementById('field-height')
+const canvasWidthInput = document.getElementById('field-width')
+const cellSizeInput = document.getElementById('cell-size')
+const renderSpeedInput = document.getElementById('render-speed')
+const settingsForm = document.getElementById('settings-form')
 
-const cellSize = 10;
-canvas.width = 600;
-canvas.height = 400;
+// DOM objects end
+let cellSize = cellSizeInput.value;
+let renderSpeed = renderSpeedInput.value
+canvas.width = canvasWidthInput.value;
+canvas.height = canvasHeightInput.value;
 const ctx = canvas.getContext('2d');
-let grid, cols, rows;
+let grid, cols, rows, gameRunning;
+
+const startGame = () => {
+  startBtn.value = 'on'
+  startBtn.innerHTML = 'stop'
+  if (!gameRunning) {
+    gameRunning = setInterval(render, renderSpeed)
+  }
+}
+
+const pauseGame = () => {
+  startBtn.value = 'off'
+  startBtn.innerHTML = 'start'
+  clearInterval(gameRunning)
+  gameRunning = null;
+}
+
+const toggleGame = () => {
+  if (startBtn.value === 'off') {
+    setup()
+    startGame()
+  } else {
+    pauseGame()
+  }
+}
+
+const randomize = () => {
+  if (startBtn.value === 'on') {
+    pauseGame()
+  }
+  grid = fillWithRandom(make2DArray(cols, rows))
+  render()
+}
+
+const onSubmit = (e) => {
+  e.preventDefault()
+  e.stopPropagation()
+  const { elements } = settingsForm
+
+  if (startBtn.value === 'on') {
+    pauseGame()
+  }
+
+  const data = Array.from(elements).filter(({ name }) => !!name).map(({ name, value }) => ({ name, value }))
+  
+  canvas.height = data.find(({ name }) => name === "field-height").value
+  canvas.width = data.find(({ name }) => name === "field-width").value
+  cellSize = data.find(({ name }) => name === "cell-size").value;
+  renderSpeed = data.find(({ name }) => name === "render-speed").value;
+
+  setup()
+}
+
+settingsForm.addEventListener('submit', onSubmit)
+startBtn.addEventListener('click', toggleGame)
+randomBtn.addEventListener('click', randomize)
 
 function make2DArray(cols, rows) {
   let arr = new Array(cols);
@@ -29,8 +93,8 @@ function fillWithRandom(grid) {
 }
 
 function setup() {
-  cols = canvas.width / cellSize;
-  rows = canvas.height / cellSize;
+  cols = Math.floor(canvas.width / cellSize);
+  rows = Math.floor(canvas.height / cellSize);
   grid = fillWithRandom(make2DArray(cols, rows))
 }
 
@@ -84,7 +148,5 @@ function countNeighdors(grid, x, y) {
   return sum
 }
 
-setup()
-
-setInterval(() => render(), 100)
+//https://github.com/MaksBmt/initi_test/blob/master/index.js
 

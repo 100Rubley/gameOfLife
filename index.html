@@ -2,17 +2,49 @@
 <html lang="ru">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game of Life</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game of Life</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <main>
-    <canvas class="canvas"></canvas>
+    <canvas class="canvas" id="canvas"></canvas>
   </main>
-    <script type="module" src="index.js"></script>
+  <footer>
+    <div class="controls">
+      <button id="start-btn" value="off">start</button>
+      <button id="random-btn">random</button>
+    </div>
+
+
+    <form class="settings" id="settings-form">
+      <label for="field-width">canvas width
+        <input type="number" id="field-width" name="field-width" value="600" placeholder="canvas width" max="1500"
+          required min="100">
+      </label>
+
+      <label for="field-height">canvas height
+        <input type="number" id="field-height" name="field-height" value="400" placeholder="canvas height" max="1500"
+          required min="100">
+      </label>
+
+      <label for="cell-size">cell size (must be even)
+        <input type="text" id="cell-size" name="cell-size" value="10" placeholder="cell size" pattern="^\d*[02468]$"
+          required max="20" min="2">
+      </label>
+
+      <label for="render-speed">render speed
+        <input type="number" id="render-speed" name="render-speed" value="100" placeholder="render speed (mc)" required
+          min="10" max="2000">
+      </label>
+
+      <button id="submit-btn" type="submit">submit</button>
+    </form>
+  </footer>
+
+  <script type="module" src="index.js"></script>
 </body>
 
 </html>
