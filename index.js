@@ -9,75 +9,42 @@ const canvasWidthInput = document.getElementById('field-width')
 const cellSizeInput = document.getElementById('cell-size')
 const renderSpeedInput = document.getElementById('render-speed')
 const settingsForm = document.getElementById('settings-form')
-
 // DOM objects end
+
+//variables start
+const DARK_COLOR = "rgb(51, 51, 51)"
+const LIGHT_COLOR = "rgb(0, 204, 0)"
+
+const ON = "on"
+const OFF = "off"
+
+const START = "start"
+const STOP = "stop"
+
 let cellSize = cellSizeInput.value;
 let renderSpeed = renderSpeedInput.value
-canvas.width = canvasWidthInput.value;
-canvas.height = canvasHeightInput.value;
+
 const ctx = canvas.getContext('2d');
 let grid, cols, rows, gameRunning;
+//variables end
+
+canvas.width = canvasWidthInput.value;
+canvas.height = canvasHeightInput.value;
 
 const startGame = () => {
-  startBtn.value = 'on'
-  startBtn.innerHTML = 'stop'
+  startBtn.value = ON
+  startBtn.innerHTML = STOP
   if (!gameRunning) {
     gameRunning = setInterval(render, renderSpeed)
   }
 }
 
 const pauseGame = () => {
-  startBtn.value = 'off'
-  startBtn.innerHTML = 'start'
+  startBtn.value = OFF
+  startBtn.innerHTML = START
   clearInterval(gameRunning)
   gameRunning = null;
 }
-
-const toggleGame = () => {
-  if (startBtn.value === 'off') {
-    startGame()
-  } else {
-    pauseGame()
-  }
-}
-
-const randomize = () => {
-  if (startBtn.value === 'on') {
-    pauseGame()
-  }
-  grid = fillWithRandom(make2DArray(cols, rows))
-  render()
-}
-
-const onClear = () => {
-  grid = make2DArray(cols, rows)
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
-
-const onSubmit = (e) => {
-  e.preventDefault()
-  e.stopPropagation()
-  const { elements } = settingsForm
-
-  if (startBtn.value === 'on') {
-    pauseGame()
-  }
-
-  const data = Array.from(elements).filter(({ name }) => !!name).map(({ name, value }) => ({ name, value }))
-
-  canvas.height = data.find(({ name }) => name === "field-height").value
-  canvas.width = data.find(({ name }) => name === "field-width").value
-  cellSize = data.find(({ name }) => name === "cell-size").value;
-  renderSpeed = data.find(({ name }) => name === "render-speed").value;
-
-  setup()
-}
-
-const onCanvasClick = (e) => {
-  pauseGame()
-  flipCell(e)
-} 
 
 const flipCell = (e) => {
   const { x, y } = canvas.getBoundingClientRect()
@@ -95,21 +62,15 @@ const flipCell = (e) => {
       const y = j * cellSize;
 
       if (grid[i][j] === 1) {
-        ctx.fillStyle = "white";
+        ctx.fillStyle = LIGHT_COLOR;
         ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
       } else {
-        ctx.fillStyle = "black";
+        ctx.fillStyle = DARK_COLOR;
         ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
       }
     }
   }
 }
-
-canvas.addEventListener('click', onCanvasClick)
-settingsForm.addEventListener('submit', onSubmit)
-startBtn.addEventListener('click', toggleGame)
-randomBtn.addEventListener('click', randomize)
-clearBtn.addEventListener('click', onClear)
 
 function make2DArray(cols, rows) {
   let arr = new Array(cols);
@@ -138,7 +99,7 @@ function setup() {
 }
 
 function render() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = DARK_COLOR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
@@ -146,7 +107,7 @@ function render() {
         const x = i * cellSize;
         const y = j * cellSize;
 
-        ctx.fillStyle = "white";
+        ctx.fillStyle = LIGHT_COLOR;
         ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
       }
     }
@@ -188,3 +149,59 @@ function countNeighdors(grid, x, y) {
 }
 
 setup()
+
+// event handlers start
+const onCanvasClick = (e) => {
+  pauseGame()
+  flipCell(e)
+}
+
+const onSubmit = (e) => {
+  e.preventDefault()
+  e.stopPropagation()
+  const { elements } = settingsForm
+
+  if (startBtn.value === ON) {
+    pauseGame()
+  }
+
+  const data = Array.from(elements).filter(({ name }) => !!name).map(({ name, value }) => ({ name, value }))
+
+  canvas.height = data.find(({ name }) => name === "field-height").value
+  canvas.width = data.find(({ name }) => name === "field-width").value
+  cellSize = data.find(({ name }) => name === "cell-size").value;
+  renderSpeed = data.find(({ name }) => name === "render-speed").value;
+
+  setup()
+}
+
+const toggleGame = () => {
+  if (startBtn.value === OFF) {
+    startGame()
+  } else {
+    pauseGame()
+  }
+}
+
+const randomize = () => {
+  if (startBtn.value === ON) {
+    pauseGame()
+  }
+  grid = fillWithRandom(make2DArray(cols, rows))
+  render()
+}
+
+const onClear = () => {
+  grid = make2DArray(cols, rows)
+  ctx.fillStyle = DARK_COLOR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+// event handlers end
+
+// eventListeners start
+canvas.addEventListener('click', onCanvasClick)
+settingsForm.addEventListener('submit', onSubmit)
+startBtn.addEventListener('click', toggleGame)
+randomBtn.addEventListener('click', randomize)
+clearBtn.addEventListener('click', onClear)
+// eventListeners end
