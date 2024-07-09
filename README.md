@@ -2,7 +2,7 @@
 
 To start a project
 
-- git clone (git@github.com:100Rubley/gameOfLife.git)
+- git clone `git@github.com:100Rubley/gameOfLife.git`
 - open project folder via VSCode
 - start live server
 
