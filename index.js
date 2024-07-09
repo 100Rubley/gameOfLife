@@ -3,6 +3,7 @@ const canvas = document.getElementById('canvas');
 const randomBtn = document.getElementById('random-btn');
 const startBtn = document.getElementById('start-btn');
 const submitBtn = document.getElementById('submit-btn')
+const clearBtn = document.getElementById('clear-btn')
 const canvasHeightInput = document.getElementById('field-height')
 const canvasWidthInput = document.getElementById('field-width')
 const cellSizeInput = document.getElementById('cell-size')
@@ -34,7 +35,6 @@ const pauseGame = () => {
 
 const toggleGame = () => {
   if (startBtn.value === 'off') {
-    setup()
     startGame()
   } else {
     pauseGame()
@@ -49,6 +49,12 @@ const randomize = () => {
   render()
 }
 
+const onClear = () => {
+  grid = make2DArray(cols, rows)
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
 const onSubmit = (e) => {
   e.preventDefault()
   e.stopPropagation()
@@ -59,7 +65,7 @@ const onSubmit = (e) => {
   }
 
   const data = Array.from(elements).filter(({ name }) => !!name).map(({ name, value }) => ({ name, value }))
-  
+
   canvas.height = data.find(({ name }) => name === "field-height").value
   canvas.width = data.find(({ name }) => name === "field-width").value
   cellSize = data.find(({ name }) => name === "cell-size").value;
@@ -68,15 +74,48 @@ const onSubmit = (e) => {
   setup()
 }
 
+const onCanvasClick = (e) => {
+  pauseGame()
+  flipCell(e)
+} 
+
+const flipCell = (e) => {
+  const { x, y } = canvas.getBoundingClientRect()
+  const mouseX = e.clientX - x;
+  const mouseY = e.clientY - y;
+
+  const i = Math.floor(mouseX / cellSize)
+  const j = Math.floor(mouseY / cellSize)
+
+  grid[i][j] ? grid[i][j] = 0 : grid[i][j] = 1
+
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const x = i * cellSize;
+      const y = j * cellSize;
+
+      if (grid[i][j] === 1) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
+      } else {
+        ctx.fillStyle = "black";
+        ctx.fillRect(x, y, cellSize - 1, cellSize - 1);
+      }
+    }
+  }
+}
+
+canvas.addEventListener('click', onCanvasClick)
 settingsForm.addEventListener('submit', onSubmit)
 startBtn.addEventListener('click', toggleGame)
 randomBtn.addEventListener('click', randomize)
+clearBtn.addEventListener('click', onClear)
 
 function make2DArray(cols, rows) {
   let arr = new Array(cols);
 
   for (let i = 0; i < cols; i++) {
-    arr[i] = new Array(rows);
+    arr[i] = new Array(rows).fill(0);
   }
 
   return arr;
@@ -95,7 +134,7 @@ function fillWithRandom(grid) {
 function setup() {
   cols = Math.floor(canvas.width / cellSize);
   rows = Math.floor(canvas.height / cellSize);
-  grid = fillWithRandom(make2DArray(cols, rows))
+  grid = make2DArray(cols, rows)
 }
 
 function render() {
@@ -148,5 +187,4 @@ function countNeighdors(grid, x, y) {
   return sum
 }
 
-//https://github.com/MaksBmt/initi_test/blob/master/index.js
-
+setup()
